@@ -1,4 +1,6 @@
+.gitignore
 bin
 .classpath
 .project
 twitter4j.properties
+libs
