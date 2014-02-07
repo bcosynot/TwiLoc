@@ -2,7 +2,6 @@ package com.vivekranjan.geosocial;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
@@ -80,8 +79,9 @@ public class TweetAnalyzer {
 				+bb[1][0]+", "+bb[1][1]+")");
 		
 		FilterQuery fq = new FilterQuery();
-		fq.locations(bb);
-		
+		//fq.locations(bb);
+		String keywords[]= {"varun gandhi"};
+		fq.track(keywords);
 		final List<Status> tweets = new ArrayList<Status>();
 		// Initialise the twitter stream.
 		final TwitterStream ts = (new TwitterStreamFactory()).getInstance();
@@ -103,10 +103,11 @@ public class TweetAnalyzer {
 			@Override
 			public void onStatus(Status status) {
 				tweets.add(status);
+				
 				// Quit listening after specified time 
 				timePassed.set((System.currentTimeMillis() - startTime)/1000);
 				log.trace("Time passed: "+timePassed.get());
-				if(timePassed.get() >= 60*60*2) { 
+				if(timePassed.get() >= 60*15) { 
 					log.trace("Quitting listening after "+timePassed.get());
 					shutDown.getAndSet(true);
 					ts.shutdown();
@@ -154,9 +155,18 @@ public class TweetAnalyzer {
 		Iterator<Status> tweetsIterator = tweets.iterator();
 		TreeMap<String, Integer> hashtagCounts = new TreeMap<String, Integer>();
 		TweetLogger tl = new TweetLogger();
+		int geoTagged = 0;
+		int loc = 0;
 		while(tweetsIterator.hasNext()) {
 			Status tweet = tweetsIterator.next();
 			tl.logTweet(tweet);
+			if(null!=tweet.getUser().getLocation()) {
+				if(tweet.getUser().getLocation().trim().length()>1)
+				{loc++;}
+			}
+			if(null!=tweet.getGeoLocation()) {
+				geoTagged++;
+			}
 			Pattern MY_PATTERN = Pattern.compile("#(\\w+|\\W+)");
 			Matcher mat = MY_PATTERN.matcher(tweet.getText());
 			while(mat.find()) {
@@ -172,6 +182,8 @@ public class TweetAnalyzer {
 		//sort map
 		Comparator<String> ordering = Ordering.natural().onResultOf(Functions.forMap(hashtagCounts)).compound(Ordering.natural());
 		ImmutableSortedMap<String, Integer> sortedHashTagCounts = ImmutableSortedMap.copyOf(hashtagCounts, ordering);
+		log.info("Number of geoTagged tweets: "+geoTagged);
+		log.info("Number of location filled profiles: "+loc);
 		log.trace(""+sortedHashTagCounts.size());
 		log.info("Hashtags and their counts:");
 		for(Entry<String, Integer> e : sortedHashTagCounts.entrySet()) {

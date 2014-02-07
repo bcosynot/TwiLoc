@@ -31,6 +31,30 @@
 			</pattern>
 		</encoder>
 	</appender>
+	<appender name="LOGANALYSIS" class="ch.qos.logback.core.FileAppender">
+	    <file>loganalysis.log</file>
+	    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>INFO</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+	    <encoder>
+			<pattern>%msg%n
+			</pattern>
+		</encoder>
+	</appender>
+	<appender name="LOCATION" class="ch.qos.logback.core.FileAppender">
+	    <file>locations.log</file>
+	    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>DEBUG</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+	    <encoder>
+			<pattern>%msg%n
+			</pattern>
+		</encoder>
+	</appender>
 	<root level="TRACE">
 		<appender-ref ref="STDOUT" />
 	</root>
@@ -39,5 +63,9 @@
 	</logger>
 	<logger name="com.vivekranjan.geosocial.TweetLogger">
 	    <appender-ref ref="TWEETS" />
+	</logger>
+	<logger name="com.vivekranjan.geosocial.LogAnalyzer">
+	    <appender-ref ref="LOGANALYSIS" />
+	    <appender-ref ref="LOCATION" />
 	</logger>
 </configuration>
